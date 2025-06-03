@@ -35,7 +35,7 @@
 <h2>Greenway Visualization Demo</h2>
 <h3>Sam Metcalf - 5/23/25</h3>
         <h3 id = daYear>Year</h3>
-        <input id = "yearSlider" type="range" name="year" min="1990" max="2025" oninput="moveSlider(this.value)" value="1990">
+        <input id = "yearSlider" type="range" name="year" min="1990" max="2025" oninput="moveSlider(this.value)" value="2025">
     <br></br>
     <div id="map"></div>
 
@@ -43,7 +43,7 @@
 </body>
 <script>
 
-    let myCurrentSelectionYear = 1990 // the initial year to start the data
+    let myCurrentSelectionYear = 2025 // the initial year to start the data
 
     const typeColors = {
         greenway: "#41AB5D",
@@ -204,11 +204,11 @@
         // console.log(myCurrentSelectionYear)
     }
 
-    moveSlider(myCurrentSelectionYear) // run the function moveSlider with the year 1990 to start with our first year 
+    moveSlider(myCurrentSelectionYear) // run the function moveSlider with the year 2025 to start with our first year 
 
     window.onload = function() {
-        document.getElementById('yearSlider').value = 1990;  
-    }; // on refresh, reset to 1990
+        document.getElementById('yearSlider').value = 2025;  
+    }; // on refresh, reset to 2025
 
     var geocoder = L.Control.geocoder({
     position: "bottomleft"
@@ -216,9 +216,4 @@
     }).addTo(map)
 
 </script>   
-<br>
-<a href = "https://dpcd-coaplangis.opendata.arcgis.com/datasets/coaplangis::annexations-3/explore?location=33.715549%2C-84.510605%2C11.81">
-    Link to Data Source </a>
-</br>
-</body>
 </html>
