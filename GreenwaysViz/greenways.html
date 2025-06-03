@@ -210,10 +210,7 @@
         document.getElementById('yearSlider').value = 2025;  
     }; // on refresh, reset to 2025
 
-    var geocoder = L.Control.geocoder({
-    position: "bottomleft"
-
-    }).addTo(map)
+    new L.Control.Geocoder().addTo(map);
 
 </script>   
 </html>
