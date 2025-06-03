@@ -191,7 +191,7 @@
     const map = L.map('map', {
         center: [35.73230144892665, -78.87270608267929],
         zoom: 13,
-        layers: [greenways, streets]
+        layers: [greenways, att, streets]
     })
 
     const layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
