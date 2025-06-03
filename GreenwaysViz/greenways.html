@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Greenways Leaflet Demo</title>
+    
     <!-- leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
     integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
@@ -12,12 +13,19 @@
     <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
     integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
     crossorigin=""></script>
+    
+    <!-- geocoder -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    
+    <!-- src geojson-->
     <script src="multimodal.js"></script>
+
 </head>
     <style>
         #map {
             width: auto;
-            height: 600px;
+            height: 400px;
             background-color: lightblue;
         }
     </style>
@@ -39,7 +47,7 @@
 
     const typeColors = {
         greenway: "#41AB5D",
-        sidepath: "purple",
+        sidepath: "#BF40BF",
         trail: "brown",
         ssgreenway: "#00b2b2",
         sidewalk: "gray",
@@ -90,15 +98,6 @@
                 features.properties.STATUS == status)
     }
 
-    function getLayer(featureType) {
-        return featureType == "Greenway" ? greenwayLayer : // The getColor has a parameter d which in our case is the value of a Year. If the Year is less than the Year selected in the slider, then we get blue, otherwise it returns gray
-               featureType == "Side Path" ? sidePathLayer :
-               featureType == "Trail" ? trailLayer :
-               featureType == "Street-Side Greenway" ? streetSideGWLayer :
-               featureType == "Sidewalk (Greenway)" ? sideWalkLayer :     
-        otherLayer ; // other
-    }
-
     function resetAll(listOfLayers) {
         for (let x in listOfLayers) {
             listOfLayers[x].resetStyle()
@@ -147,6 +146,14 @@
         }
     })
 
+    const att = L.geoJSON(multimodal, {
+        style: myStyle, // styling according to myStyle() defined function
+        onEachFeature: myPopUp,
+        filter: function(features) {
+            return (features.properties.TYPE === "Greenway-Equestrian")
+        }
+    })
+
     // const att = L.geoJSON(multimodal, {
     //     style: myStyle, // styling according to myStyle() defined function
     //     onEachFeature: myPopUp,
@@ -155,7 +162,7 @@
     //     }
     // })
 
-     layerList = [greenways, sidepaths, trails, ssgreenways, sidewalks] //, att]
+     layerList = [greenways, sidepaths, trails, ssgreenways, sidewalks, att]
 
     const streets = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
 	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -173,7 +180,7 @@
         [`<span style='color: ${typeColors.trail}'>Trails</span>`] : trails,
         [`<span style='color: ${typeColors.ssgreenway}'>Street-Side Greenways</span>`] : ssgreenways,
         [`<span style='color: ${typeColors.sidewalk}'>Sidewalks</span>`] : sidewalks,
-        // "American Tobacco Trail" : att
+        [`<span style='color: ${typeColors.other}'>American Tobacco Trail</span>`] : att
     }
 
     const baseMaps = {
@@ -202,6 +209,11 @@
     window.onload = function() {
         document.getElementById('yearSlider').value = 1990;  
     }; // on refresh, reset to 1990
+
+    var geocoder = L.Control.geocoder({
+    position: "bottomleft"
+
+    }).addTo(map)
 
 </script>   
 <br>
