@@ -86,10 +86,10 @@
     function myPopUp(features, layer) {
          var date = new Date(features.properties.TC_APPROVE);
             layer.bindPopup("<b>" + features.properties.TRAIL_NAME + "</b><br>" +
-                "Corridor: " + features.properties.CORRIDOR + "<br>" +
-                "Year Planned: " + features.properties.PLAN_YEAR + "<br>" +
+                "Status: " + features.properties.STATUS + "<br>" +
                 "Path Type: " + features.properties.TYPE + "<br>" +
-                "Approved by Town Council: " + date.toLocaleDateString() + "<br>"
+                "Corridor: " + features.properties.CORRIDOR + "<br>" +
+                "Year Planned: " + features.properties.PLAN_YEAR + "<br>"
          )
     }
 
