@@ -13,7 +13,11 @@
     <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
     integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
     crossorigin=""></script>
-    
+
+    <!-- esri -->
+    <script src="https://unpkg.com/esri-leaflet@3.0.16/dist/esri-leaflet.js"></script>
+    <script src="https://unpkg.com/esri-leaflet-vector@4.2.8/dist/esri-leaflet-vector.js"></script>
+
     <!-- geocoder -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
@@ -26,7 +30,7 @@
         #map {
             width: auto;
             height: 400px;
-            background-color: lightblue;
+            background-color: lightgray;
         }
     </style>
 
@@ -106,52 +110,55 @@
 
     // creating geoJSON layers for each type, add to respective
 
-    const greenways = L.geoJSON(multimodal, {
+    // const greenways = L.geoJSON(multimodal, {
+    //     style: myStyle, // styling according to myStyle() defined function
+    //     onEachFeature: myPopUp,
+    //     filter: function(features) {
+    //         return (features.properties.TYPE === "Greenway")
+    //     }
+    // })
+    const apexPedPaths = "https://services1.arcgis.com/nry3yyvaEfskMEXA/arcgis/rest/services/Apex_Bicycle_and_Pedestrian_System/FeatureServer/2";
+
+    const greenways = L.esri.featureLayer({
+        url: apexPedPaths,
         style: myStyle, // styling according to myStyle() defined function
         onEachFeature: myPopUp,
-        filter: function(features) {
-            return (features.properties.TYPE === "Greenway")
-        }
+        where: "TYPE = 'Greenway'"
+    });
+
+    const sidepaths = L.esri.featureLayer({
+        url: apexPedPaths,
+        style: myStyle, // styling according to myStyle() defined function
+        onEachFeature: myPopUp,
+        where: "TYPE = 'Side Path'"
     })
 
-    const sidepaths = L.geoJSON(multimodal, {
+    const trails = L.esri.featureLayer({
+        url: apexPedPaths,
         style: myStyle, // styling according to myStyle() defined function
         onEachFeature: myPopUp,
-        filter: function(features) {
-            return (features.properties.TYPE === "Side Path")
-        }
+        where: "TYPE = 'Trail'"
     })
 
-    const trails = L.geoJSON(multimodal, {
+    const ssgreenways = L.esri.featureLayer({
+        url: apexPedPaths,
         style: myStyle, // styling according to myStyle() defined function
         onEachFeature: myPopUp,
-        filter: function(features) {
-            return (features.properties.TYPE === "Trail")
-        }
+        where: "TYPE = 'Street-Side Greenway'"
     })
 
-    const ssgreenways = L.geoJSON(multimodal, {
+    const sidewalks = L.esri.featureLayer({
+        url: apexPedPaths,
         style: myStyle, // styling according to myStyle() defined function
         onEachFeature: myPopUp,
-        filter: function(features) {
-            return (features.properties.TYPE === "Street-Side Greenway")
-        }
+        where: "TYPE = 'Sidewalk (Greenway)'"
     })
 
-    const sidewalks = L.geoJSON(multimodal, {
+    const att = L.esri.featureLayer({
+        url: apexPedPaths,
         style: myStyle, // styling according to myStyle() defined function
         onEachFeature: myPopUp,
-        filter: function(features) {
-            return (features.properties.TYPE === "Sidewalk (Greenway)")
-        }
-    })
-
-    const att = L.geoJSON(multimodal, {
-        style: myStyle, // styling according to myStyle() defined function
-        onEachFeature: myPopUp,
-        filter: function(features) {
-            return (features.properties.TYPE === "Greenway-Equestrian")
-        }
+        where: "TYPE = 'Greenway-Equestrian'"
     })
 
     // const att = L.geoJSON(multimodal, {
