@@ -181,12 +181,15 @@
     // Parks Layer
     const parks = L.esri.featureLayer({
         url: refApexParks,
-        style: function mystyle(feature) {
+        style: function parkStyle(feature) {
             return {
                 fillColor: typeColors.greenway,
                 fillOpacity: 0.5,
                 weight: 0
             }},
+        onEachFeature: function parkPopUp(features, layer) {
+            layer.bindPopup("<b>" + features.properties.NAME + "</b>") 
+        },
         where: "STATUS = 'Existing'"
     });
 
