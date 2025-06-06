@@ -3,110 +3,86 @@ import re
 from bs4 import BeautifulSoup
 import csv
 import pandas as pd
+import genanki
 
-game = 6389
-r = requests.get('https://j-archive.com/showgame.php?game_id=' + str(game))
+myModel = genanki.Model(
+  1607392319,
+  'Simple Model',
+  fields=[
+    {'name': 'Game'},
+    {'name': 'Category'},
+    {'name': 'Question'},
+    {'name': 'Answer'},
+    {'name': 'Dollar Amount'}
+  ],
+  templates=[
+    {
+      'name': 'Card 1',
+      'qfmt': '<h2 style="font-weight:bold;">{{Category}} - ${{Dollar Amount}}</h2><br>{{Question}}',
+      'afmt': '{{FrontSide}}<hr id="answer">{{Answer}}<br><em>Game {{Game}}<em>',
+    },
+  ])
 
-mySoup = BeautifulSoup(r.content.decode("utf-8"), 'html.parser')
+games = range(8046, 8236) # season 36
 myList = []
+for aGame in games:
+    r = requests.get(f'https://j-archive.com/showgame.php?game_id={aGame}')
+    print(f"started scraping for game {aGame}")
 
-# single jeopardy
-for column in range(1, 7):
-    activeColumn = mySoup.find_all(class_='category_name')[column-1].get_text()
-    for row in range(1, 6):
-        questionValue = row*200
-        hasMedia = bool(mySoup.find(id=f"clue_J_{column}_{row}").a)
-        questionInfo = {
-            "game": game,
-            "category": activeColumn,
-            "question": mySoup.find(id=f"clue_J_{column}_{row}").get_text(),
-            "answer": mySoup.find(id=f"clue_J_{column}_{row}_r").em.get_text(),
-            "amount": questionValue,
-            "media" : mySoup.find(id=f"clue_J_{column}_{row}").a.get('href') if hasMedia else None,
-            "dj" : False
-        }
-        myList.append(questionInfo)
+    mySoup = BeautifulSoup(r.content.decode("utf-8"), 'html.parser')
 
-# double jeopardy
-for column in range(1, 7):
-    activeColumn = mySoup.find_all(class_='category_name')[column+5].get_text()
-    for row in range(1, 6):
-        questionValue = row*400
-        hasMedia = bool(mySoup.find(id=f"clue_DJ_{column}_{row}").a)
-        questionInfo = {
-            "game": game,
-            "category": activeColumn,
-            "question": mySoup.find(id=f"clue_DJ_{column}_{row}").get_text(),
-            "answer": mySoup.find(id=f"clue_DJ_{column}_{row}_r").em.get_text(),
-            "amount": questionValue,
-            "media" : mySoup.find(id=f"clue_DJ_{column}_{row}").a.get('href') if hasMedia else None,
-            "dj" : True
-        }
-        myList.append(questionInfo)
+    # single jeopardy
+    for column in range(1, 7):
+        activeColumn = mySoup.find_all(class_='category_name')[column-1].get_text() # active category
+        for row in range(1, 6):
+            if mySoup.find(id=f"clue_J_{column}_{row}") == None: # breaks loop for questions that are cut for time
+                continue
+            questionValue = row*200
+            hasMedia = bool(mySoup.find(id=f"clue_J_{column}_{row}").a) # returns true if there is media
+            questionInfo = {
+                "game": aGame,
+                "category": activeColumn,
+                "question": mySoup.find(id=f"clue_J_{column}_{row}").get_text(),
+                "answer": mySoup.find(id=f"clue_J_{column}_{row}_r").em.get_text(),
+                "amount": questionValue,
+                "media" : mySoup.find(id=f"clue_J_{column}_{row}").a.get('href') if hasMedia else None,
+                "dj" : False
+            }
+            myList.append(questionInfo)
+
+    # double jeopardy
+    for column in range(1, 7):
+        activeColumn = mySoup.find_all(class_='category_name')[column+5].get_text()
+        for row in range(1, 6):
+            if mySoup.find(id=f"clue_DJ_{column}_{row}") == None: 
+                continue
+            questionValue = row*400
+            hasMedia = bool(mySoup.find(id=f"clue_DJ_{column}_{row}").a)
+            questionInfo = {
+                "game": aGame,
+                "category": activeColumn,
+                "question": mySoup.find(id=f"clue_DJ_{column}_{row}").get_text(),
+                "answer": mySoup.find(id=f"clue_DJ_{column}_{row}_r").em.get_text(),
+                "amount": questionValue,
+                "media" : mySoup.find(id=f"clue_DJ_{column}_{row}").a.get('href') if hasMedia else None,
+                "dj" : True
+            }
+            myList.append(questionInfo)
 
 myDataFrame = pd.DataFrame(myList)
+myDataFrame = myDataFrame.reset_index()
+myDataFrame.to_csv("season36.csv", index=False)
 
-print(myDataFrame)
-# myDataFrame.to_csv("myTable.csv", index=False)
+# myDeck = genanki.Deck(
+#     102031413,
+#     'Test'
+# )
 
+# for index, row in myDataFrame.iterrows():
+#     myNote = genanki.Note(
+#         model=myModel,
+#         fields=[str(row['game']), row['category'], row['question'], row['answer'], str(row['amount'])]) # ("DJ" if row['dj'] else "")
+#     myDeck.add_note(myNote)
+
+# genanki.Package(myDeck).write_to_file('test.apkg')
     
-
-
-
-
-# myData = r.content.decode("utf-8")
-
-# myData
-
-# print(myData)
-# with open("myFile.html", "w") as file:
-#     file.write(myData)
-
-# myCats = re.findall("<td class=\"category_name\">.*</td>", myData)
-# myClues = re.findall("<td id=\"clue_._._.\" class=\"clue_text\">.*</td>", myData)
-# myAnswers = re.findall("<em class=\"correct_response\">.*</em>", myData)
-# myVals = re.findall("<td class=\"clue_value\">.*</td>", myData)
-
-# # print(myCats[0:10])
-# # print(myClues[0:10])
-# # print(myAnswers[0:10])
-# # print(myVals[0:10])
-# def replacePhrases(string, vector):
-#     for i in vector:
-#         string = re.sub(i[0], i[1], string)
-#     return string
-
-# phrasesToReplace = [
-#     ["<td id=\"clue_._._.\" class=\"clue_text\">", ""],
-#     ["<span.*</span>", ""],
-#     ["&amp;", "&"],
-#     ["\\'", "'"]
-# ]
-
-# myCluesCleaned = []
-# for aClue in myClues:
-#     myMedia = ""
-#     myClueNum = re.search("id=\"clue_._._.\"", aClue).group() #search for part of string that contains clue id
-#     if re.search("<a href=\".*</a>", aClue): #if there is a link tag, <a>, in the clue (media);
-#         myMedia = re.search("<a href=\".*</a>", aClue).group() #isolate that <a> tag
-#         myMedia = re.search("\"http:.*\"", myMedia).group() #isolate the link within that <a> tag
-#     replacePhrases(aClue, phrasesToReplace)
-#     aClue = BeautifulSoup(aClue, "html.parser")
-#     aClue = aClue.td.string
-#     # aClue = re.sub("<td id=\"clue_._._.\" class=\"clue_text\">", "", aClue) #replace html boilerplate in actual clue
-#     # aClue = re.sub("<span.*</span>", "", aClue)
-#     # aClue = re.sub("&amp;", "&", aClue)
-#     # aClue = re.sub("\\'", "'", aClue)
-#     myDict = {
-#         "id" : myClueNum,
-#         "clue" : aClue,
-#         "media" : myMedia
-#         }
-#     myCluesCleaned.append(myDict)
-# myDataFrame = pd.DataFrame(myCluesCleaned)
-# print(myDataFrame)
-# # myTable = [myClues, myAnswers, myVals]
-
-# # with open('myTable.csv', 'w', newline='') as tableFile:
-# #     writer = csv.writer(tableFile)
-# #     writer.writerows(myTable)
